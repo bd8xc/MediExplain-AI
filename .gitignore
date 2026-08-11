@@ -1,0 +1,19 @@
+# Virtual environment
+.venv/
+
+# Environment variables / AWS credentials
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+
+# Uploaded files
+app/uploads/
+
+# IDE
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db

@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Upload Successful</title>
+  </head>
+
+  <body>
+    <h1>✅ Upload Successful</h1>
+
+    <p>Your prescription has been uploaded.</p>
+
+    <p><strong>Filename:</strong> {{ filename }}</p>
+    <hr />
+
+    <h2>Extracted Text</h2>
+
+    <pre>{{ text }}</pre>
+    <hr />
+
+    <h2>🤖 AI Explanation</h2>
+
+    <pre>{{ ai }}</pre>
+    <br />
+
+    <a href="/">
+      <button>Upload Another Prescription</button>
+    </a>
+  </body>
+</html>
