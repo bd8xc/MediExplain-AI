@@ -1,147 +1,260 @@
-### MediExplain AI
+# MediExplain AI
 
-AI-powered prescription explainer that converts complex medical prescriptions into simple, patient-friendly explanations.
+MediExplain AI is an AI-powered prescription analysis application that extracts medicine information from uploaded prescription images and provides a simple explanation of the identified medicines.
 
-### Overview
-MediExplain AI allows users to upload a prescription and uses AWS services and generative AI to explain the medicines in simple language.
-The application extracts prescription information and generates explanations covering:
+The project currently uses AWS services for image storage, OCR, and AI-based prescription analysis.
 
-* Medicine purpose
-* Dosage instructions
-* Possible side effects
-* Precautions
-* General medication guidance
+## Current Progress
 
-### Architecture
+The core AWS pipeline is currently working:
 
-User
-↓
-FastAPI
-↓
-Amazon S3
-↓
-OCR / Amazon Textract
-↓
-Amazon Bedrock
-↓
-AI Prescription Explanation
-↓
-Patient-Friendly UI
+Prescription Image → FastAPI → Local Storage → Amazon S3 → Amazon Textract → Medicine Extraction → Amazon Bedrock → Web UI
 
-### Tech Stack
+### Completed
 
-**Backend**
+- FastAPI backend set up.
+- Prescription image upload functionality implemented.
+- Uploaded files are saved locally during processing.
+- Prescription images are uploaded to an Amazon S3 bucket.
+- Amazon Textract is integrated for OCR.
+- JPEG and PNG file signatures are checked before sending images to Textract.
+- OCR output is extracted as readable text from Textract `LINE` blocks.
+- Amazon Bedrock is integrated using `amazon.nova-lite-v1:0`.
+- A separate medicine extraction step has been implemented.
+- Medicine extraction identifies:
+  - Medicine name
+  - Dosage
+  - Frequency
+  - Duration
+  - Whether verification is required
 
-* Python
-* FastAPI
-* Uvicorn
-* Jinja2
+- A second Bedrock step provides general information about identified medicines.
+- The AI output is displayed on a success page.
+- The application handles unclear prescription information by flagging it for verification instead of intentionally guessing.
+- GitHub repository has been synchronized with the latest `main` branch.
+- AWS credentials are kept outside the repository using environment variables.
+- `.env`, virtual environments, uploaded prescriptions, logs, and other local files are ignored through `.gitignore`.
 
-**AWS**
+## Current Architecture
 
-* Amazon S3
-* Amazon Textract
-* Amazon Bedrock
-* Amazon Nova Lite
-* IAM
+### Frontend
 
-**Frontend**
+The application currently uses HTML templates with Jinja2.
 
-* HTML
-* Jinja2 Templates
-* Bootstrap
+Main pages:
 
-### Features
+- `index.html` — prescription upload page
+- `success.html` — displays OCR text and AI analysis
 
-* Prescription image/document upload
-* Cloud storage using Amazon S3
-* OCR-based prescription text extraction
-* AI-powered prescription explanation
-* Simple medicine descriptions
-* Dosage and precaution explanations
-* Secure AWS credential management using environment variables
+### Backend
 
-### Current Status
+FastAPI handles the application routes.
 
-The core MVP pipeline is working:
+Current upload flow:
 
-**Upload → S3 → OCR → Amazon Bedrock → AI Explanation**
+1. User uploads a prescription.
+2. FastAPI receives the image.
+3. The image is read into bytes.
+4. The file is saved locally.
+5. The file is uploaded to Amazon S3.
+6. The image bytes are sent to Amazon Textract.
+7. Textract extracts the prescription text.
+8. Bedrock extracts structured medicine information from the OCR output.
+9. Bedrock generates a simple explanation for each medicine.
+10. The results are displayed on the success page.
 
-The current development phase focuses on improving the UI, structuring AI responses, and adding medication-specific features.
+## Project Structure
 
-> Note: The Bedrock AI explanation pipeline is currently working. Full production OCR using Amazon Textract will be finalized once the AWS account/service activation is available.
-
-### Future Improvements
-
-* Structured medicine cards
-* Medication reminders
-* Drug interaction warnings
-* Multi-language explanations
-* Prescription history
-* Responsive/mobile UI
-* AWS Lambda processing
-* API Gateway integration
-* Authentication
-* CloudWatch monitoring
-
-### Setup
-
-Clone the repository:
-
-```bash
-git clone https://github.com/bd8xc/MediExplain-AI.git
-cd MediExplain-AI
+```text
+MediExplain-AI/
+│
+├── app/
+│   ├── routes/
+│   │   └── upload.py
+│   ├── services/
+│   │   ├── storage.py
+│   │   └── bedrock.py
+│   └── templates/
+│       ├── index.html
+│       └── success.html
+│
+├── data/
+├── requirements.txt
+├── .gitignore
+└── README.md
 ```
 
-Create a virtual environment:
+**`upload.py`**
+Handles prescription uploads and coordinates the processing pipeline.
 
-```powershell
-python -m venv .venv
-.venv\Scripts\activate
-```
+**`storage.py`**
+Handles local file storage, Amazon S3 uploads, and Amazon Textract OCR.
+
+**`bedrock.py`**
+Handles medicine extraction and AI-generated explanations using Amazon Bedrock.
+
+**`templates/`**
+Contains the web interface for uploading prescriptions and viewing results.
+
+## AWS Services
+
+### Amazon S3
+
+Used to store uploaded prescription images.
+
+Current bucket:
+
+`mediexplain-bikram-2026`
+
+### Amazon Textract
+
+Used for OCR extraction from prescription images.
+
+The current implementation uses:
+
+`DetectDocumentText`
+
+For the current use case, images such as JPEG and PNG prescriptions can be processed directly using the document bytes.
+
+### Amazon Bedrock
+
+Used for two separate tasks.
+
+First, Bedrock extracts structured medicine information from the OCR output.
+
+Second, Bedrock generates general explanations for the extracted medicines.
+
+Current model:
+
+`amazon.nova-lite-v1:0`
+
+## Medicine Extraction
+
+The medicine extraction stage is intentionally conservative.
+
+The model is instructed to:
+
+- Extract only information that is clearly present.
+- Avoid guessing unclear dosage information.
+- Avoid interpreting ambiguous numbers.
+- Preserve dosage values from OCR.
+- Identify unclear frequency or duration.
+- Mark medicines requiring verification.
+
+For example, if OCR contains:
+
+`for 16 my`
+
+the system should not automatically interpret this as `16 days`, `16 mg`, or `16 ml`.
+
+Instead, it should flag the information as unclear.
+
+Similarly, OCR such as:
+
+`twice (00)`
+
+is treated as:
+
+Frequency: `twice`
+
+Duration: `Unclear`
+
+rather than assuming `(00)` represents a duration.
+
+## Example
+
+For a relatively readable prescription, Textract can produce output such as:
+
+`T. SOMPRAZ 40 1-0-0 BF`
+
+`T. NORMAXIN-RT 0-0-1 RF`
+
+The system can then identify the medicines and provide a simplified explanation while preserving the prescription information extracted from the OCR.
+
+## Environment Variables
+
+AWS credentials are stored in `.env` and are not committed to GitHub.
+
+Required environment variables:
+
+- `AWS_ACCESS_KEY_ID`
+- `AWS_SECRET_ACCESS_KEY`
+- `AWS_REGION`
+
+Example:
+
+`AWS_REGION=your-region`
+
+Do not commit real AWS credentials to the repository.
+
+## Running Locally
+
+Create and activate the virtual environment:
+
+`python -m venv .venv`
+
+Activate it on Windows:
+
+`.venv\Scripts\activate`
 
 Install dependencies:
 
-```powershell
-pip install -r requirements.txt
-```
+`pip install -r requirements.txt`
 
-Create a `.env` file:
+Start the FastAPI application:
 
-```env
-AWS_ACCESS_KEY_ID=your_access_key
-AWS_SECRET_ACCESS_KEY=your_secret_key
-AWS_REGION=your_region
-```
+`uvicorn app.main:app --reload`
 
-Run the application:
+The application can then be accessed through the local server.
 
-```powershell
-uvicorn main:app --reload
-```
+## Current Limitations
 
-Open:
+The system is currently dependent on the quality of the prescription image and Textract OCR.
 
-**[http://127.0.0.1:8000](http://127.0.0.1:8000)**
+Handwritten prescriptions can produce inaccurate OCR, especially when:
 
-### Security
+- handwriting is unclear
+- medicine names are abbreviated
+- dosage information is handwritten
+- numbers are difficult to distinguish
+- multiple pieces of information overlap
+- the prescription contains poor image quality
 
-AWS credentials and uploaded prescription files are excluded from Git using `.gitignore`.
+The AI therefore uses a verification flag when prescription information cannot be confidently extracted.
 
-For production, AWS IAM roles should be preferred over long-lived access keys.
+The application is intended as an assistance and explanation tool and should not replace a doctor or pharmacist when prescription information is unclear.
 
-Never commit your `.env` file or real patient prescription documents to the repository.
+## Current Development Status
 
-### Medical Disclaimer
+The basic end-to-end AWS pipeline is functional.
 
-MediExplain AI is an educational tool for simplifying prescription information. It does not replace a doctor or pharmacist and should not be used to diagnose conditions, change dosages, or make treatment decisions.
+Current status:
 
-Always follow the instructions provided by your healthcare professional.
+- FastAPI: Complete
+- Image Upload: Complete
+- Local File Storage: Complete
+- S3 Upload: Complete
+- Textract OCR: Complete
+- Medicine Extraction: Working
+- Bedrock Explanation: Working
+- Web Result Display: Working
+- GitHub Repository: Updated
+- `.env` Protection: Configured
 
-### Author
+## Next Steps
 
-**Bikram Dutta**
+Potential next development stages:
 
-GitHub: [https://github.com/bd8xc](https://github.com/bd8xc)
+1. Improve OCR accuracy for handwritten prescriptions.
+2. Improve medicine-name identification.
+3. Improve handling of dosage and frequency.
+4. Add stronger validation between OCR and AI extraction.
+5. Improve the UI for displaying prescription results.
+6. Add confidence/verification indicators for individual medicines.
+7. Add error handling for AWS service failures.
+8. Improve security around AWS credentials and uploaded documents.
+9. Add testing for the extraction pipeline.
+10. Containerize the application for deployment.
+11. Deploy the application to AWS.
 
-That will put the README straight onto your GitHub repo.
+This README reflects the current state of the project and can be updated as additional functionality is implemented.
