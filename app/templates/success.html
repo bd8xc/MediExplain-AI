@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <title>Upload Successful | MediExplain AI</title>
+    <title>Prescription Analysis | MediExplain AI</title>
 
     <style>
       * {
@@ -12,40 +12,40 @@
       }
 
       body {
+        margin: 0;
+        padding: 40px 20px;
         font-family: Arial, sans-serif;
         background: #f5f7fb;
         color: #1f2937;
-        margin: 0;
-        padding: 40px 20px;
       }
 
       .container {
         max-width: 1000px;
-        margin: 0 auto;
+        margin: auto;
       }
 
       /* Header */
 
-      .success-header {
+      .header {
         text-align: center;
         margin-bottom: 35px;
       }
 
-      .success-header h1 {
-        color: #16a34a;
-        margin-bottom: 10px;
+      .header h1 {
+        margin: 0 0 10px;
+        color: #059669;
         font-size: 32px;
       }
 
-      .success-header p {
-        color: #6b7280;
-        font-size: 16px;
+      .header p {
+        color: #64748b;
+        margin: 0;
       }
 
       .filename {
-        margin-top: 15px;
-        font-size: 15px;
-        color: #374151;
+        margin-top: 12px;
+        font-size: 14px;
+        color: #334155;
       }
 
       /* Sections */
@@ -54,20 +54,27 @@
         margin-top: 30px;
       }
 
-      .section h2 {
-        font-size: 24px;
-        margin-bottom: 15px;
+      .section-title {
+        font-size: 23px;
+        margin-bottom: 7px;
         color: #111827;
       }
 
-      /* Extracted prescription */
+      .section-description {
+        margin-top: 0;
+        margin-bottom: 20px;
+        color: #64748b;
+        font-size: 14px;
+      }
+
+      /* OCR */
 
       .prescription-box {
         background: white;
+        border: 1px solid #e2e8f0;
         border-radius: 12px;
         padding: 25px;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
-        border: 1px solid #e5e7eb;
       }
 
       .prescription-box pre {
@@ -75,9 +82,9 @@
         white-space: pre-wrap;
         word-wrap: break-word;
         font-family: Consolas, monospace;
-        font-size: 14px;
+        font-size: 13px;
         line-height: 1.7;
-        color: #374151;
+        color: #334155;
       }
 
       /* Medicine cards */
@@ -85,90 +92,233 @@
       .medicine-card {
         background: white;
         border-radius: 12px;
-        padding: 28px;
-        margin: 20px 0;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-        border-left: 5px solid #2563eb;
+        padding: 24px;
+        margin-bottom: 20px;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
       }
 
-      .medicine-card h3 {
-        margin-top: 0;
-        margin-bottom: 24px;
+      .medicine-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 15px;
+        padding-bottom: 15px;
+        margin-bottom: 18px;
+        border-bottom: 1px solid #e2e8f0;
+      }
+
+      .medicine-number {
+        font-size: 13px;
+        color: #64748b;
+        margin-bottom: 4px;
+      }
+
+      .medicine-title {
+        font-size: 20px;
+        font-weight: bold;
         color: #1e3a8a;
-        font-size: 22px;
+        margin: 0;
       }
 
-      .medicine-card h4 {
-        margin-top: 18px;
+      .verification-badge {
+        padding: 6px 10px;
+        border-radius: 6px;
+        background: #fff7ed;
+        color: #c2410c;
+        border: 1px solid #fed7aa;
+        font-size: 11px;
+        font-weight: bold;
+        white-space: nowrap;
+      }
+
+      .new-badge {
+        padding: 6px 10px;
+        border-radius: 6px;
+        background: #eff6ff;
+        color: #1d4ed8;
+        border: 1px solid #bfdbfe;
+        font-size: 11px;
+        font-weight: bold;
+      }
+
+      /* Editable fields */
+
+      .fields-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+      }
+
+      .field {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .field.full-width {
+        grid-column: 1 / -1;
+      }
+
+      .field label {
+        font-size: 11px;
+        font-weight: bold;
+        color: #64748b;
         margin-bottom: 6px;
-        color: #374151;
-        font-size: 15px;
+        text-transform: uppercase;
       }
 
-      .medicine-card p {
-        margin-top: 0;
-        color: #4b5563;
-        font-size: 15px;
+      .field input {
+        width: 100%;
+        padding: 11px 12px;
+        border-radius: 7px;
+        border: 1px solid #cbd5e1;
+        background: #f8fafc;
+        color: #1e293b;
+        font-size: 14px;
+        outline: none;
+        transition: 0.2s;
+      }
+
+      .field input:focus {
+        border-color: #2563eb;
+        background: white;
+        box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+      }
+
+      .field input.missing {
+        border-color: #f59e0b;
+        background: #fffbeb;
+      }
+
+      /* AI explanation */
+
+      .explanation {
+        margin-top: 22px;
+        padding-top: 18px;
+        border-top: 1px solid #e2e8f0;
+      }
+
+      .explanation h4 {
+        margin: 14px 0 6px;
+        color: #1e293b;
+        font-size: 14px;
+      }
+
+      .explanation p {
+        margin: 0;
+        color: #475569;
+        font-size: 14px;
         line-height: 1.6;
       }
 
-      .medicine-card ul {
+      .explanation ul {
+        margin: 6px 0 0;
         padding-left: 20px;
-        margin-top: 8px;
       }
 
-      .medicine-card li {
-        margin-bottom: 7px;
-        color: #4b5563;
-        font-size: 15px;
+      .explanation li {
+        color: #475569;
+        font-size: 14px;
+        margin-bottom: 5px;
         line-height: 1.5;
       }
 
-      /* AI section */
+      .no-info {
+        color: #64748b;
+        font-size: 13px;
+      }
 
-      .ai-title {
+      /* Add medicine */
+
+      .add-container {
+        margin: 15px 0 25px;
+      }
+
+      .add-button {
+        background: white;
+        color: #2563eb;
+        border: 1px solid #2563eb;
+        padding: 10px 17px;
+        border-radius: 7px;
+        font-size: 14px;
+        cursor: pointer;
+        font-weight: 600;
+      }
+
+      .add-button:hover {
+        background: #eff6ff;
+      }
+
+      .remove-button {
+        background: transparent;
+        color: #dc2626;
+        border: 1px solid #fecaca;
+        padding: 7px 10px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 12px;
+      }
+
+      .remove-button:hover {
+        background: #fef2f2;
+      }
+
+      /* Actions */
+
+      .actions {
         display: flex;
-        align-items: center;
-        gap: 8px;
+        justify-content: center;
+        gap: 12px;
+        margin: 35px 0 20px;
+        flex-wrap: wrap;
       }
 
-      .ai-subtitle {
-        color: #6b7280;
-        margin-top: -5px;
-        margin-bottom: 20px;
+      .primary-button,
+      .secondary-button {
+        padding: 12px 22px;
+        border-radius: 7px;
+        font-size: 14px;
+        cursor: pointer;
+        border: none;
+        font-weight: 600;
       }
 
-      /* Button */
-
-      .button-container {
-        text-align: center;
-        margin-top: 35px;
-        margin-bottom: 20px;
-      }
-
-      .upload-button {
+      .primary-button {
         background: #2563eb;
         color: white;
-        border: none;
-        padding: 12px 24px;
-        border-radius: 8px;
-        font-size: 15px;
-        cursor: pointer;
-        transition: background 0.2s ease;
       }
 
-      .upload-button:hover {
+      .primary-button:hover {
         background: #1d4ed8;
       }
 
-      /* Footer */
+      .secondary-button {
+        background: #e2e8f0;
+        color: #334155;
+      }
+
+      .secondary-button:hover {
+        background: #cbd5e1;
+      }
+
+      /* Status */
+
+      #status-message {
+        text-align: center;
+        margin-top: 15px;
+        font-size: 14px;
+        color: #059669;
+        min-height: 20px;
+      }
+
+      /* Disclaimer */
 
       .disclaimer {
         text-align: center;
-        color: #6b7280;
+        color: #64748b;
         font-size: 12px;
-        margin-top: 35px;
         line-height: 1.5;
+        margin-top: 30px;
       }
 
       /* Mobile */
@@ -178,20 +328,30 @@
           padding: 25px 15px;
         }
 
-        .success-header h1 {
+        .header h1 {
           font-size: 26px;
         }
 
-        .section h2 {
-          font-size: 21px;
+        .fields-grid {
+          grid-template-columns: 1fr;
         }
 
-        .medicine-card {
-          padding: 20px;
+        .field.full-width {
+          grid-column: auto;
         }
 
-        .medicine-card h3 {
-          font-size: 20px;
+        .medicine-header {
+          align-items: flex-start;
+          flex-direction: column;
+        }
+
+        .actions {
+          flex-direction: column;
+        }
+
+        .primary-button,
+        .secondary-button {
+          width: 100%;
         }
       }
     </style>
@@ -199,90 +359,601 @@
 
   <body>
     <div class="container">
-      <!-- Success Header -->
+      <!-- HEADER -->
 
-      <div class="success-header">
-        <h1>✅ Upload Successful</h1>
+      <div class="header">
+        <h1>Prescription Analysis Complete</h1>
 
         <p>Your prescription has been successfully uploaded and analyzed.</p>
 
-        <div class="filename">
-          <strong>Filename:</strong>
-          {{ filename }}
-        </div>
+        <div class="filename"><strong>Filename:</strong> {{ filename }}</div>
       </div>
 
-      <!-- Extracted Prescription -->
+      <!-- EXTRACTED PRESCRIPTION -->
 
       <div class="section">
-        <h2>📄 Extracted Prescription</h2>
+        <h2 class="section-title">Extracted Prescription</h2>
 
         <div class="prescription-box">
           <pre>{{ text }}</pre>
         </div>
       </div>
 
-      <!-- AI Explanation -->
+      <!-- MEDICINE INFORMATION -->
 
       <div class="section">
-        <h2 class="ai-title">🤖 AI Explanation</h2>
+        <h2 class="section-title">Medicine Information</h2>
 
-        <p class="ai-subtitle">
-          A simple explanation of the medicines found in your prescription.
+        <p class="section-description">
+          Review the extracted prescription information below. If anything is
+          incorrect or missing, edit it before updating the explanation.
         </p>
 
-        {% for medicine in ai.medicines %}
+        <!-- MEDICINES -->
 
-        <div class="medicine-card">
-          <h3>💊 {{ medicine.name }}</h3>
+        <div id="medicine-container">
+          {% for medicine in medicines %} {% set explanation =
+          ai.medicines[loop.index0] if ai and ai.medicines and loop.index0 <
+          ai.medicines|length else {} %}
 
-          <h4>Purpose</h4>
+          <div class="medicine-card" data-medicine-card>
+            <div class="medicine-header">
+              <div>
+                <div class="medicine-number">Medicine {{ loop.index }}</div>
 
-          <p>{{ medicine.purpose }}</p>
+                <h3 class="medicine-title">{{ medicine.name }}</h3>
+              </div>
 
-          <h4>Dosage</h4>
+              {% if medicine.verification_required %}
 
-          <p>{{ medicine.dosage }}</p>
+              <div class="verification-badge">Verification Required</div>
 
-          <h4>Side Effects</h4>
+              {% endif %}
+            </div>
 
-          <ul>
-            {% for effect in medicine.side_effects %}
+            <!-- EDITABLE PRESCRIPTION FIELDS -->
 
-            <li>{{ effect }}</li>
+            <div class="fields-grid">
+              <!-- NAME -->
 
-            {% endfor %}
-          </ul>
+              <div class="field full-width">
+                <label>Medicine Name</label>
 
-          <h4>Precautions</h4>
+                <input
+                  type="text"
+                  class="medicine-name"
+                  value="{{ medicine.name }}"
+                />
+              </div>
 
-          <ul>
-            {% for precaution in medicine.precautions %}
+              <!-- DOSAGE -->
 
-            <li>{{ precaution }}</li>
+              <div class="field">
+                <label>Dosage</label>
 
-            {% endfor %}
-          </ul>
+                <input
+                  type="text"
+                  class="medicine-dosage"
+                  value="{{ medicine.dosage }}"
+                />
+              </div>
+
+              <!-- FREQUENCY -->
+
+              <div class="field">
+                <label>Frequency</label>
+
+                <input
+                  type="text"
+                  class="medicine-frequency"
+                  value="{{ medicine.frequency }}"
+                />
+              </div>
+
+              <!-- FOOD -->
+
+              <div class="field">
+                <label>Food / Timing</label>
+
+                <input
+                  type="text"
+                  class="medicine-food"
+                  value="{{ medicine.food_instruction }}"
+                />
+              </div>
+
+              <!-- DURATION -->
+
+              <div class="field">
+                <label>Duration</label>
+
+                <input
+                  type="text"
+                  class="medicine-duration"
+                  value="{{ medicine.duration }}"
+                />
+              </div>
+            </div>
+
+            <!-- AI EXPLANATION -->
+
+            <div class="explanation">
+              <h4>Purpose</h4>
+
+              <p>
+                {% if explanation.purpose %} {{ explanation.purpose }} {% else
+                %} No purpose information available. {% endif %}
+              </p>
+
+              <h4>Common Side Effects</h4>
+
+              {% if explanation.side_effects %}
+
+              <ul>
+                {% for effect in explanation.side_effects %}
+
+                <li>{{ effect }}</li>
+
+                {% endfor %}
+              </ul>
+
+              {% else %}
+
+              <p class="no-info">
+                No reliable side-effect information was provided.
+              </p>
+
+              {% endif %}
+
+              <h4>Precautions</h4>
+
+              {% if explanation.precautions %}
+
+              <ul>
+                {% for precaution in explanation.precautions %}
+
+                <li>{{ precaution }}</li>
+
+                {% endfor %}
+              </ul>
+
+              {% else %}
+
+              <p class="no-info">No additional precautions were provided.</p>
+
+              {% endif %}
+            </div>
+
+            <!-- REMOVE ONLY NEWLY ADDED MEDICINES -->
+
+            <div
+              class="remove-container"
+              style="display: none; margin-top: 18px"
+            >
+              <button
+                type="button"
+                class="remove-button"
+                onclick="removeMedicine(this)"
+              >
+                Remove Medicine
+              </button>
+            </div>
+          </div>
+
+          {% endfor %}
         </div>
 
-        {% endfor %}
+        <!-- ADD MEDICINE -->
+
+        <div class="add-container">
+          <button type="button" class="add-button" onclick="addMedicine()">
+            + Add Missing Medicine
+          </button>
+        </div>
+
+        <!-- UPDATE FORM -->
+
+        <form id="update-form" method="POST" action="/confirm">
+          <input type="hidden" name="medicines_json" id="medicines_json" />
+
+          <input type="hidden" name="filename" value="{{ filename }}" />
+
+          <input type="hidden" name="text" value="{{ text }}" />
+
+          <div class="actions">
+            <button type="submit" class="primary-button">
+              Update Explanation
+            </button>
+
+            <button
+              type="button"
+              class="secondary-button"
+              onclick="window.location.href = '/'"
+            >
+              Upload Another Prescription
+            </button>
+          </div>
+        </form>
+
+        <div id="status-message"></div>
       </div>
 
-      <!-- Upload Another Prescription -->
-
-      <div class="button-container">
-        <button class="upload-button" onclick="window.location.href = '/'">
-          Upload Another Prescription
-        </button>
-      </div>
-
-      <!-- Disclaimer -->
+      <!-- DISCLAIMER -->
 
       <div class="disclaimer">
         MediExplain AI provides informational explanations only. It does not
-        replace professional medical advice. Always follow the instructions
-        provided by your doctor or pharmacist.
+        replace professional medical advice. Always verify prescription
+        instructions with your doctor or pharmacist.
       </div>
     </div>
+
+    <script>
+      /*
+       * Collect all medicine information currently visible on the page.
+       *
+       * This means:
+       *
+       * 1. OCR-corrected medicines
+       * 2. User-edited medicines
+       * 3. Completely new medicines added by the user
+       *
+       * all become the input to /confirm.
+       */
+
+      function collectMedicines() {
+        const cards = document.querySelectorAll("[data-medicine-card]");
+
+        const medicines = [];
+
+        cards.forEach(function (card) {
+          const name = card.querySelector(".medicine-name").value.trim();
+
+          const dosage = card.querySelector(".medicine-dosage").value.trim();
+
+          const frequency = card
+            .querySelector(".medicine-frequency")
+            .value.trim();
+
+          const foodInstruction = card
+            .querySelector(".medicine-food")
+            .value.trim();
+
+          const duration = card
+            .querySelector(".medicine-duration")
+            .value.trim();
+
+          /*
+           * Do not allow a completely empty medicine card.
+           */
+
+          if (!name) {
+            return;
+          }
+
+          medicines.push({
+            name: name,
+
+            dosage: dosage,
+
+            frequency: frequency,
+
+            food_instruction: foodInstruction,
+
+            duration: duration,
+
+            /*
+             * The backend will determine whether verification
+             * is required based on missing fields.
+             */
+
+            verification_required:
+              !dosage || !frequency || !foodInstruction || !duration,
+          });
+        });
+
+        return medicines;
+      }
+
+      /*
+       * Add a completely new medicine.
+       */
+
+      function addMedicine() {
+        const container = document.getElementById("medicine-container");
+
+        const card = document.createElement("div");
+
+        card.className = "medicine-card";
+
+        card.setAttribute("data-medicine-card", "");
+
+        const medicineNumber =
+          container.querySelectorAll("[data-medicine-card]").length + 1;
+
+        card.innerHTML = `
+
+            <div class="medicine-header">
+
+                <div>
+
+                    <div class="medicine-number">
+                        Medicine ${medicineNumber}
+                    </div>
+
+                    <h3 class="medicine-title">
+                        New Medicine
+                    </h3>
+
+                </div>
+
+                <div class="new-badge">
+                    Newly Added
+                </div>
+
+            </div>
+
+
+            <div class="fields-grid">
+
+                <div class="field full-width">
+
+                    <label>Medicine Name</label>
+
+                    <input
+                        type="text"
+                        class="medicine-name"
+                        value=""
+                        placeholder="Enter medicine name"
+                        oninput="updateMedicineTitle(this)"
+                    >
+
+                </div>
+
+
+                <div class="field">
+
+                    <label>Dosage</label>
+
+                    <input
+                        type="text"
+                        class="medicine-dosage"
+                        value=""
+                        placeholder="Enter dosage"
+                    >
+
+                </div>
+
+
+                <div class="field">
+
+                    <label>Frequency</label>
+
+                    <input
+                        type="text"
+                        class="medicine-frequency"
+                        value=""
+                        placeholder="Enter frequency"
+                    >
+
+                </div>
+
+
+                <div class="field">
+
+                    <label>Food / Timing</label>
+
+                    <input
+                        type="text"
+                        class="medicine-food"
+                        value=""
+                        placeholder="Enter timing"
+                    >
+
+                </div>
+
+
+                <div class="field">
+
+                    <label>Duration</label>
+
+                    <input
+                        type="text"
+                        class="medicine-duration"
+                        value=""
+                        placeholder="Enter duration"
+                    >
+
+                </div>
+
+            </div>
+
+
+            <div class="explanation">
+
+                <p class="no-info">
+                    This medicine was manually added.
+                    Its explanation will be generated after you update the explanation.
+                </p>
+
+            </div>
+
+
+            <div
+                class="remove-container"
+                style="display:block; margin-top:18px;"
+            >
+
+                <button
+                    type="button"
+                    class="remove-button"
+                    onclick="removeMedicine(this)"
+                >
+                    Remove Medicine
+                </button>
+
+            </div>
+
+        `;
+
+        container.appendChild(card);
+
+        /*
+         * Put the cursor directly into the medicine name field.
+         */
+
+        card.querySelector(".medicine-name").focus();
+
+        /*
+         * Scroll the new medicine into view.
+         */
+
+        card.scrollIntoView({
+          behavior: "smooth",
+          block: "center",
+        });
+      }
+
+      /*
+       * Update the displayed title while the user types
+       * a newly added medicine name.
+       */
+
+      function updateMedicineTitle(input) {
+        const card = input.closest("[data-medicine-card]");
+
+        const title = card.querySelector(".medicine-title");
+
+        if (input.value.trim()) {
+          title.textContent = input.value.trim();
+        } else {
+          title.textContent = "New Medicine";
+        }
+      }
+
+      /*
+       * Remove a manually added medicine.
+       */
+
+      function removeMedicine(button) {
+        const card = button.closest("[data-medicine-card]");
+
+        if (!card) {
+          return;
+        }
+
+        card.remove();
+
+        renumberMedicines();
+      }
+
+      /*
+       * Keep Medicine 1, Medicine 2, Medicine 3...
+       * correct after adding/removing medicines.
+       */
+
+      function renumberMedicines() {
+        const cards = document.querySelectorAll("[data-medicine-card]");
+
+        cards.forEach(function (card, index) {
+          const number = card.querySelector(".medicine-number");
+
+          if (number) {
+            number.textContent = "Medicine " + (index + 1);
+          }
+        });
+      }
+
+      /*
+       * Before submitting:
+       *
+       * HTML form
+       *      ↓
+       * collectMedicines()
+       *      ↓
+       * JSON
+       *      ↓
+       * /confirm
+       *      ↓
+       * explain_prescription()
+       *      ↓
+       * Bedrock
+       *      ↓
+       * updated success.html
+       */
+
+      document
+        .getElementById("update-form")
+        .addEventListener("submit", function (event) {
+          const medicines = collectMedicines();
+
+          if (medicines.length === 0) {
+            event.preventDefault();
+
+            alert("Please provide at least one medicine.");
+
+            return;
+          }
+
+          /*
+           * Check whether any medicine has an empty
+           * important field.
+           *
+           * We DO NOT block submission.
+           *
+           * The backend will convert empty values
+           * into its UNCLEAR value and mark them
+           * for verification.
+           */
+
+          const missingFields = [];
+
+          medicines.forEach(function (medicine, index) {
+            if (!medicine.dosage) {
+              missingFields.push("Medicine " + (index + 1) + ": dosage");
+            }
+
+            if (!medicine.frequency) {
+              missingFields.push("Medicine " + (index + 1) + ": frequency");
+            }
+
+            if (!medicine.food_instruction) {
+              missingFields.push("Medicine " + (index + 1) + ": food/timing");
+            }
+
+            if (!medicine.duration) {
+              missingFields.push("Medicine " + (index + 1) + ": duration");
+            }
+          });
+
+          /*
+           * Store the final human-corrected information
+           * in the hidden form field.
+           */
+
+          document.getElementById("medicines_json").value =
+            JSON.stringify(medicines);
+
+          /*
+           * Small status message while the request
+           * is being processed.
+           */
+
+          document.getElementById("status-message").textContent =
+            "Updating explanation using your corrections...";
+
+          /*
+           * Disable button to prevent accidental
+           * double submissions.
+           */
+
+          const submitButton = document.querySelector(
+            "#update-form .primary-button",
+          );
+
+          submitButton.disabled = true;
+
+          submitButton.textContent = "Updating...";
+        });
+    </script>
   </body>
 </html>

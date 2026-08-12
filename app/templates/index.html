@@ -2,20 +2,289 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
     <title>MediExplain AI</title>
+
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: Arial, sans-serif;
+        background: #f5f7fb;
+        color: #1f2937;
+      }
+
+      .container {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 60px 20px;
+      }
+
+      /* Header */
+
+      .header {
+        text-align: center;
+        margin-bottom: 40px;
+      }
+
+      .header h1 {
+        margin: 0;
+        font-size: 38px;
+        color: #1e3a8a;
+      }
+
+      .header p {
+        margin-top: 10px;
+        color: #64748b;
+        font-size: 16px;
+      }
+
+      /* Upload Card */
+
+      .upload-card {
+        max-width: 650px;
+        margin: 0 auto;
+        background: white;
+        padding: 35px;
+        border-radius: 14px;
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.06);
+      }
+
+      .upload-card h2 {
+        margin-top: 0;
+        margin-bottom: 8px;
+        color: #111827;
+        font-size: 24px;
+      }
+
+      .upload-description {
+        color: #64748b;
+        font-size: 14px;
+        line-height: 1.6;
+        margin-bottom: 25px;
+      }
+
+      /* File Input */
+
+      .file-section {
+        margin-top: 20px;
+      }
+
+      .file-label {
+        display: block;
+        margin-bottom: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        color: #374151;
+      }
+
+      input[type="file"] {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #cbd5e1;
+        border-radius: 8px;
+        background: #f8fafc;
+        font-size: 14px;
+        cursor: pointer;
+      }
+
+      input[type="file"]:focus {
+        outline: none;
+        border-color: #2563eb;
+      }
+
+      .supported-formats {
+        margin-top: 8px;
+        color: #64748b;
+        font-size: 12px;
+      }
+
+      /* Button */
+
+      .button-container {
+        margin-top: 25px;
+        text-align: center;
+      }
+
+      .upload-button {
+        width: 100%;
+        padding: 13px 20px;
+        border: none;
+        border-radius: 8px;
+        background: #2563eb;
+        color: white;
+        font-size: 15px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.2s ease;
+      }
+
+      .upload-button:hover {
+        background: #1d4ed8;
+      }
+
+      .upload-button:active {
+        transform: translateY(1px);
+      }
+
+      /* Information Cards */
+
+      .features {
+        max-width: 900px;
+        margin: 45px auto 0;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 18px;
+      }
+
+      .feature-card {
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 10px;
+        padding: 22px;
+        text-align: center;
+      }
+
+      .feature-card h3 {
+        margin: 0 0 8px;
+        color: #1e3a8a;
+        font-size: 16px;
+      }
+
+      .feature-card p {
+        margin: 0;
+        color: #64748b;
+        font-size: 13px;
+        line-height: 1.5;
+      }
+
+      /* Disclaimer */
+
+      .disclaimer {
+        max-width: 750px;
+        margin: 35px auto 0;
+        text-align: center;
+        color: #64748b;
+        font-size: 12px;
+        line-height: 1.6;
+      }
+
+      /* Mobile */
+
+      @media (max-width: 700px) {
+        .container {
+          padding: 35px 15px;
+        }
+
+        .header h1 {
+          font-size: 30px;
+        }
+
+        .upload-card {
+          padding: 25px;
+        }
+
+        .features {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
   </head>
 
   <body>
-    <h1>MediExplain AI</h1>
+    <div class="container">
+      <!-- Header -->
 
-    <p>AI Powered Prescription Explainer</p>
+      <div class="header">
+        <h1>MediExplain AI</h1>
 
-    <form action="/upload" method="post" enctype="multipart/form-data">
-      <input type="file" name="prescription" accept="image/*,.pdf" required />
+        <p>AI-powered prescription analysis and medicine information</p>
+      </div>
 
-      <br /><br />
+      <!-- Upload -->
 
-      <button type="submit">Upload Prescription</button>
-    </form>
+      <div class="upload-card">
+        <h2>Upload Prescription</h2>
+
+        <p class="upload-description">
+          Upload a clear image of your prescription. MediExplain AI will extract
+          the medicine information and provide a simple explanation.
+        </p>
+
+        <!-- IMPORTANT:
+             Normal HTML form submission.
+             No JavaScript.
+             No fetch().
+             This allows FastAPI to return success.html directly.
+        -->
+
+        <form action="/upload" method="POST" enctype="multipart/form-data">
+          <div class="file-section">
+            <label class="file-label" for="prescription">
+              Select Prescription
+            </label>
+
+            <input
+              type="file"
+              id="prescription"
+              name="prescription"
+              accept=".jpg,.jpeg,.png,.webp,.gif"
+              required
+            />
+
+            <div class="supported-formats">
+              Supported formats: JPG, JPEG, PNG, WEBP, GIF
+            </div>
+          </div>
+
+          <div class="button-container">
+            <button type="submit" class="upload-button">
+              Analyze Prescription
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Features -->
+
+      <div class="features">
+        <div class="feature-card">
+          <h3>OCR Extraction</h3>
+
+          <p>
+            Extracts text and prescription instructions from the uploaded image.
+          </p>
+        </div>
+
+        <div class="feature-card">
+          <h3>AI Explanation</h3>
+
+          <p>Provides simple general information about identified medicines.</p>
+        </div>
+
+        <div class="feature-card">
+          <h3>Human Verification</h3>
+
+          <p>
+            Allows prescription information to be reviewed and corrected before
+            updating the explanation.
+          </p>
+        </div>
+      </div>
+
+      <!-- Disclaimer -->
+
+      <div class="disclaimer">
+        MediExplain AI provides informational explanations only. It does not
+        replace professional medical advice. Always verify prescription
+        instructions with your doctor or pharmacist.
+      </div>
+    </div>
   </body>
 </html>
