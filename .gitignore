@@ -1,18 +1,25 @@
-# Virtual environment
-.venv/
-
-# Environment variables / AWS credentials
+# Environment variables
 .env
+.env.*
 
 # Python
 __pycache__/
 *.py[cod]
 
-# Uploaded files
+# Virtual environment
+.venv/
+venv/
+env/
+
+# Uploaded prescription files
 app/uploads/
+
+# Logs
+*.log
 
 # IDE
 .vscode/
+.idea/
 
 # OS
 .DS_Store

@@ -2,29 +2,287 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>Upload Successful</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Upload Successful | MediExplain AI</title>
+
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: Arial, sans-serif;
+        background: #f5f7fb;
+        color: #1f2937;
+        margin: 0;
+        padding: 40px 20px;
+      }
+
+      .container {
+        max-width: 1000px;
+        margin: 0 auto;
+      }
+
+      /* Header */
+
+      .success-header {
+        text-align: center;
+        margin-bottom: 35px;
+      }
+
+      .success-header h1 {
+        color: #16a34a;
+        margin-bottom: 10px;
+        font-size: 32px;
+      }
+
+      .success-header p {
+        color: #6b7280;
+        font-size: 16px;
+      }
+
+      .filename {
+        margin-top: 15px;
+        font-size: 15px;
+        color: #374151;
+      }
+
+      /* Sections */
+
+      .section {
+        margin-top: 30px;
+      }
+
+      .section h2 {
+        font-size: 24px;
+        margin-bottom: 15px;
+        color: #111827;
+      }
+
+      /* Extracted prescription */
+
+      .prescription-box {
+        background: white;
+        border-radius: 12px;
+        padding: 25px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+        border: 1px solid #e5e7eb;
+      }
+
+      .prescription-box pre {
+        margin: 0;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        font-family: Consolas, monospace;
+        font-size: 14px;
+        line-height: 1.7;
+        color: #374151;
+      }
+
+      /* Medicine cards */
+
+      .medicine-card {
+        background: white;
+        border-radius: 12px;
+        padding: 28px;
+        margin: 20px 0;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        border-left: 5px solid #2563eb;
+      }
+
+      .medicine-card h3 {
+        margin-top: 0;
+        margin-bottom: 24px;
+        color: #1e3a8a;
+        font-size: 22px;
+      }
+
+      .medicine-card h4 {
+        margin-top: 18px;
+        margin-bottom: 6px;
+        color: #374151;
+        font-size: 15px;
+      }
+
+      .medicine-card p {
+        margin-top: 0;
+        color: #4b5563;
+        font-size: 15px;
+        line-height: 1.6;
+      }
+
+      .medicine-card ul {
+        padding-left: 20px;
+        margin-top: 8px;
+      }
+
+      .medicine-card li {
+        margin-bottom: 7px;
+        color: #4b5563;
+        font-size: 15px;
+        line-height: 1.5;
+      }
+
+      /* AI section */
+
+      .ai-title {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .ai-subtitle {
+        color: #6b7280;
+        margin-top: -5px;
+        margin-bottom: 20px;
+      }
+
+      /* Button */
+
+      .button-container {
+        text-align: center;
+        margin-top: 35px;
+        margin-bottom: 20px;
+      }
+
+      .upload-button {
+        background: #2563eb;
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 8px;
+        font-size: 15px;
+        cursor: pointer;
+        transition: background 0.2s ease;
+      }
+
+      .upload-button:hover {
+        background: #1d4ed8;
+      }
+
+      /* Footer */
+
+      .disclaimer {
+        text-align: center;
+        color: #6b7280;
+        font-size: 12px;
+        margin-top: 35px;
+        line-height: 1.5;
+      }
+
+      /* Mobile */
+
+      @media (max-width: 700px) {
+        body {
+          padding: 25px 15px;
+        }
+
+        .success-header h1 {
+          font-size: 26px;
+        }
+
+        .section h2 {
+          font-size: 21px;
+        }
+
+        .medicine-card {
+          padding: 20px;
+        }
+
+        .medicine-card h3 {
+          font-size: 20px;
+        }
+      }
+    </style>
   </head>
 
   <body>
-    <h1>✅ Upload Successful</h1>
+    <div class="container">
+      <!-- Success Header -->
 
-    <p>Your prescription has been uploaded.</p>
+      <div class="success-header">
+        <h1>✅ Upload Successful</h1>
 
-    <p><strong>Filename:</strong> {{ filename }}</p>
-    <hr />
+        <p>Your prescription has been successfully uploaded and analyzed.</p>
 
-    <h2>Extracted Text</h2>
+        <div class="filename">
+          <strong>Filename:</strong>
+          {{ filename }}
+        </div>
+      </div>
 
-    <pre>{{ text }}</pre>
-    <hr />
+      <!-- Extracted Prescription -->
 
-    <h2>🤖 AI Explanation</h2>
+      <div class="section">
+        <h2>📄 Extracted Prescription</h2>
 
-    <pre>{{ ai }}</pre>
-    <br />
+        <div class="prescription-box">
+          <pre>{{ text }}</pre>
+        </div>
+      </div>
 
-    <a href="/">
-      <button>Upload Another Prescription</button>
-    </a>
+      <!-- AI Explanation -->
+
+      <div class="section">
+        <h2 class="ai-title">🤖 AI Explanation</h2>
+
+        <p class="ai-subtitle">
+          A simple explanation of the medicines found in your prescription.
+        </p>
+
+        {% for medicine in ai.medicines %}
+
+        <div class="medicine-card">
+          <h3>💊 {{ medicine.name }}</h3>
+
+          <h4>Purpose</h4>
+
+          <p>{{ medicine.purpose }}</p>
+
+          <h4>Dosage</h4>
+
+          <p>{{ medicine.dosage }}</p>
+
+          <h4>Side Effects</h4>
+
+          <ul>
+            {% for effect in medicine.side_effects %}
+
+            <li>{{ effect }}</li>
+
+            {% endfor %}
+          </ul>
+
+          <h4>Precautions</h4>
+
+          <ul>
+            {% for precaution in medicine.precautions %}
+
+            <li>{{ precaution }}</li>
+
+            {% endfor %}
+          </ul>
+        </div>
+
+        {% endfor %}
+      </div>
+
+      <!-- Upload Another Prescription -->
+
+      <div class="button-container">
+        <button class="upload-button" onclick="window.location.href = '/'">
+          Upload Another Prescription
+        </button>
+      </div>
+
+      <!-- Disclaimer -->
+
+      <div class="disclaimer">
+        MediExplain AI provides informational explanations only. It does not
+        replace professional medical advice. Always follow the instructions
+        provided by your doctor or pharmacist.
+      </div>
+    </div>
   </body>
 </html>

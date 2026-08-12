@@ -1,4 +1,5 @@
 from pathlib import Path
+import json
 
 from fastapi import APIRouter, Request, UploadFile, File
 from fastapi.responses import HTMLResponse
@@ -10,7 +11,7 @@ from app.services.storage import (
     extract_text,
 )
 
-from app.services.bedrock import explain_prescription
+from app.services.bedrock import explain_prescription, extract_medicines
 router = APIRouter()
 
 templates = Jinja2Templates(directory="app/templates")
@@ -46,8 +47,16 @@ async def upload_prescription(
     file_bytes
     )
 
-    extracted_text = extract_text(prescription.filename)
-    ai_response = explain_prescription(extracted_text)
+    extracted_text = extract_text(file_bytes)
+
+    medicines = extract_medicines(extracted_text)
+    print("=" * 50)
+    print("EXTRACTED MEDICINES")
+    print(json.dumps(medicines, indent=2))
+    print("=" * 50)
+
+    ai_response = explain_prescription(medicines)
+
 
     return templates.TemplateResponse(
         request=request,
